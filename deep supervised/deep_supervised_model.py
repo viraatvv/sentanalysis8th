@@ -36,8 +36,8 @@ X_test_padded = tokenize_and_pad(X_test, tokenizer, maxlen)
 # Building the model
 model = Sequential()
 voc = len(tokenizer.index_word) + 1
-feats = 8
-seq_len = 256
+feats = 4
+seq_len = 128
 model.add(Embedding(voc, feats, input_length=seq_len))
 model.add(Flatten())
 model.add(Dropout(0.25))

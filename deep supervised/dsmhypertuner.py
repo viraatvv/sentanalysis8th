@@ -9,20 +9,17 @@ import matplotlib.pyplot as plt
 import time
 from kerastuner.tuners import RandomSearch
 
-# Loading the data
 filename = "https://github.com/lmassaron/datasets/releases/download/1.0/imdb_50k.feather"
 reviews = pd.read_feather(filename)
 
 X = reviews['review']
 y = reviews['sentiment']
 
-# Splitting the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(X_train)
 
-# Tokenizing and padding sequences
 maxlen = 256
 vocab_size = len(tokenizer.word_index) + 1
 
@@ -34,7 +31,6 @@ def tokenize_and_pad(texts, tokenizer, maxlen):
 X_train_padded = tokenize_and_pad(X_train, tokenizer, maxlen=maxlen)
 X_test_padded = tokenize_and_pad(X_test, tokenizer, maxlen=maxlen)
 
-# Define a function that builds the model using hyperparameters
 def build_model(hp):
     feats = hp.Int('feats', min_value=4, max_value=32, step=4)
     
@@ -47,7 +43,6 @@ def build_model(hp):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
-# Set up the hyperparameter search
 tuner = RandomSearch(
     build_model,
     objective='val_accuracy',
@@ -57,28 +52,21 @@ tuner = RandomSearch(
     project_name='my_project'
 )
 
-# Start the hyperparameter search
 tuner.search(X_train_padded, y_train, epochs=20, validation_data=(X_test_padded, y_test), callbacks=[EarlyStopping(patience=5)])
 
-
-# Get the best hyperparameters
 best_hp = tuner.get_best_hyperparameters(num_trials=1)[0]
 print(f"Best Hyperparameters: {best_hp}")
 
-# Retrieve the best model
 best_model = tuner.get_best_models(num_models=1)[0]
 best_model.summary()
 
-# Training the best model
-start_time = time.time()  # Start recording time
+start_time = time.time()  
 best_model.fit(X_train_padded, y_train, epochs=20, validation_data=(X_test_padded, y_test))
-end_time = time.time()  # End recording time
+end_time = time.time()
 
-# Calculating the training duration of the best model
 training_duration = end_time - start_time
 print(f"Training duration of the best model: {training_duration} seconds")
 
-# Plotting accuracy and loss over time during training of the best model
 plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 2, 1)

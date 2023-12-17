@@ -18,14 +18,12 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
-# Loading the data
 filename = "https://github.com/lmassaron/datasets/releases/download/1.0/imdb_50k.feather"
 data = pd.read_feather(filename)
 
 X = data['review']
 y = data['sentiment']
 
-# Text preprocessing steps
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
@@ -44,11 +42,9 @@ vectorizer = TfidfVectorizer(max_features=10000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# Initializing the model
 model = LogisticRegression(max_iter=50, solver='lbfgs', 
                            penalty=None, C = 0.001, dual=False)
 
-# Lists to store iteration count, loss, and corresponding accuracy
 iterations = []
 train_losses = []
 test_losses = []
@@ -56,27 +52,22 @@ train_accuracies = []
 
 start = time()
 
-# Train the model and collect loss and accuracy at each iteration for data collection
 for i in range(1, 101):  
     model.fit(X_train_vec, y_train)
     
-    # Predict on train and test set
     y_train_pred = model.predict(X_train_vec)
     y_test_pred = model.predict(X_test_vec)
     
-    # Calculate accuracy
     train_accuracy = (y_train_pred == y_train).mean()
     test_accuracy = (y_test_pred == y_test).mean()
     
-    # Calculate log-loss with epsilon value - value prevents log(0)
     epsilon = 1e-15
     prob_train = np.clip(model.predict_proba(X_train_vec)[:, 1], epsilon, 1 - epsilon)
     prob_test = np.clip(model.predict_proba(X_test_vec)[:, 1], epsilon, 1 - epsilon)
     
     train_loss = -((y_train * np.log(prob_train) + (1 - y_train) * np.log(1 - prob_train))).mean()
     test_loss = -((y_test * np.log(prob_test) + (1 - y_test) * np.log(1 - prob_test))).mean()
-    
-    # Store metrics
+
     iterations.append(i)
     train_losses.append(train_loss)
     test_losses.append(test_loss)
@@ -88,7 +79,6 @@ end = time()
 
 print(f'Training Time: {end - start}')
 
-# Plotting loss and training accuracy over iterations
 plt.figure(figsize=(12, 4))
 plt.subplot(1, 2, 1)
 plt.plot(iterations, train_losses, label='Train Loss')

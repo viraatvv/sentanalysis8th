@@ -8,20 +8,17 @@ from tensorflow.keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import time
 
-# Loading the data
 filename = "https://github.com/lmassaron/datasets/releases/download/1.0/imdb_50k.feather"
 reviews = pd.read_feather(filename)
 
 X = reviews['review']
 y = reviews['sentiment']
 
-# Splitting the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(X_train)
 
-# Tokenizing and padding sequences
 maxlen = 256
 vocab_size = len(tokenizer.word_index) + 1
 
@@ -33,7 +30,6 @@ def tokenize_and_pad(texts, tokenizer, maxlen):
 X_train_padded = tokenize_and_pad(X_train, tokenizer, maxlen)
 X_test_padded = tokenize_and_pad(X_test, tokenizer, maxlen)
 
-# Building the model
 model = Sequential()
 voc = len(tokenizer.index_word) + 1
 feats = 4
@@ -47,16 +43,13 @@ callback = EarlyStopping(patience=5)
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-# Training the model and recording time
-start_time = time.time()  # Start recording time
+start_time = time.time()
 history = model.fit(X_train_padded, y_train, epochs=20, validation_data=(X_test_padded, y_test), callbacks=[callback])
-end_time = time.time()  # End recording time
+end_time = time.time() 
 
-# Calculating the training duration
 training_duration = end_time - start_time
 print(f"Training duration: {training_duration} seconds")
 
-# Plotting accuracy and loss over time during training
 plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 2, 1)

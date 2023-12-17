@@ -1,11 +1,3 @@
-"""
-
-Hey! Hey!
-Before running this, you may keep seeing resource *resource* not found. 
-Just do the instructions it gives you. 
-
-"""
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -28,22 +20,21 @@ stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
 def preprocess_text(text):
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
-    tokens = word_tokenize(text)  # Tokenization
-    tokens = [lemmatizer.lemmatize(word.lower()) for word in tokens if word.lower() not in stop_words]  # Lowercasing and lemmatization
+    text = re.sub(r'[^\w\s]', '', text) 
+    tokens = word_tokenize(text)  
+    tokens = [lemmatizer.lemmatize(word.lower()) for word in tokens if word.lower() not in stop_words]
     return ' '.join(tokens)
 
 X = X.apply(preprocess_text)
 
-# Data splitting
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-vectorizer = TfidfVectorizer(max_features=10000)
+vectorizer = TfidfVectorizer(max_features=1000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
 model = LogisticRegression(max_iter=50, solver='lbfgs', 
-                           penalty=None, C = 0.001, dual=False)
+                           penalty=None, C=0.001, dual=False)
 
 iterations = []
 train_losses = []
@@ -67,7 +58,7 @@ for i in range(1, 101):
     
     train_loss = -((y_train * np.log(prob_train) + (1 - y_train) * np.log(1 - prob_train))).mean()
     test_loss = -((y_test * np.log(prob_test) + (1 - y_test) * np.log(1 - prob_test))).mean()
-
+    
     iterations.append(i)
     train_losses.append(train_loss)
     test_losses.append(test_loss)

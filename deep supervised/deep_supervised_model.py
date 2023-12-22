@@ -39,12 +39,12 @@ model.add(Flatten())
 model.add(Dropout(0.25))
 model.add(Dense(1, activation='sigmoid'))
 
-callback = EarlyStopping(patience=5)
+callback = EarlyStopping(patience=2)
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
 start_time = time.time()
-history = model.fit(X_train_padded, y_train, epochs=20, validation_data=(X_test_padded, y_test), callbacks=[callback])
+history = model.fit(X_train_padded, y_train, epochs=10, validation_data=(X_test_padded, y_test), callbacks=[callback])
 end_time = time.time() 
 
 training_duration = end_time - start_time
@@ -70,3 +70,18 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+def predict_sentiment(text, model, tokenizer, maxlen):
+    text_sequence = tokenizer.texts_to_sequences([text])
+    padded_sequence = pad_sequences(text_sequence, maxlen=maxlen)
+    predicted_sentiment = model.predict(padded_sequence)[0][0]
+    return predicted_sentiment
+
+# Getting user input for sentiment analysis
+user_input_text = input("Enter your text for sentiment analysis: ")
+
+predicted_sentiment = predict_sentiment(user_input_text, model, tokenizer, maxlen)
+if predicted_sentiment >= 0.5:
+    print(f"The predicted sentiment score for '{user_input_text}' is positive: {predicted_sentiment}")
+else:
+    print(f"The predicted sentiment score for '{user_input_text}' is negative: {predicted_sentiment}")

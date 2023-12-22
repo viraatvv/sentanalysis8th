@@ -88,3 +88,26 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+def preprocess_text(text):
+    text = re.sub(r'[^\w\s]', '', text) 
+    tokens = word_tokenize(text)  
+    tokens = [lemmatizer.lemmatize(word.lower()) for word in tokens if word.lower() not in stop_words]
+    return ' '.join(tokens)
+
+# User input function for sentiment analysis
+def predict_sentiment(text, model, vectorizer):
+    processed_text = preprocess_text(text)
+    text_vec = vectorizer.transform([processed_text])
+    sentiment_prediction = model.predict(text_vec)
+    return sentiment_prediction[0]
+
+# Getting user input for sentiment analysis
+user_input_text = input("Enter your text for sentiment analysis: ")
+
+predicted_sentiment = predict_sentiment(user_input_text, model, vectorizer)
+
+if predicted_sentiment == 1:
+    print(f"The predicted sentiment for '{user_input_text}' is positive.")
+else:
+    print(f"The predicted sentiment for '{user_input_text}' is negative.")

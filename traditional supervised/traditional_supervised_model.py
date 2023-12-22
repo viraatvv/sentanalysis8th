@@ -43,7 +43,7 @@ train_accuracies = []
 
 start = time()
 
-for i in range(1, 101):  
+for i in range(1, 11):  
     model.fit(X_train_vec, y_train)
     
     y_train_pred = model.predict(X_train_vec)

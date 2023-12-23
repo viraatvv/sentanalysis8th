@@ -14,10 +14,9 @@ reviews = pd.read_feather(filename)
 
 X = reviews['review']
 
-# Splitting the data
 X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
 
-max_words = 20000  # Maximum number of words to be considered
+max_words = 20000 
 tokenizer = Tokenizer(num_words=max_words)
 tokenizer.fit_on_texts(X_train)
 
@@ -33,15 +32,12 @@ def tokenize_and_pad(texts, tokenizer, maxlen):
 X_train_padded = tokenize_and_pad(X_train, tokenizer, maxlen)
 X_test_padded = tokenize_and_pad(X_test, tokenizer, maxlen)
 
-# Autoencoder architecture for unsupervised learning
 input_seq = Input(shape=(maxlen,))
 embedding = Embedding(vocab_size, embedding_dim)(input_seq)
 encoder_lstm = LSTM(32)(embedding)
 
-# Repeat the encoded vector maxlen times
 repeat = RepeatVector(maxlen)(encoder_lstm)
 
-# Decoder LSTM layer
 decoder_lstm = LSTM(64, return_sequences=True)(repeat)
 decoded = Dense(vocab_size, activation='softmax')(decoder_lstm)
 
@@ -52,7 +48,6 @@ callback = EarlyStopping(patience=2)
 
 start_time = time.time()
 
-# Training the autoencoder on input sequences
 history = autoencoder.fit(X_train_padded, X_train_padded, epochs=10,
                           validation_data=(X_test_padded, X_test_padded), callbacks=[callback])
 
@@ -61,8 +56,6 @@ end_time = time.time()
 training_duration = end_time - start_time
 print(f"Training duration: {training_duration} seconds")
 
-
-# Plotting training and validation loss
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
 
@@ -75,7 +68,6 @@ plt.ylabel('Loss')
 plt.legend()
 plt.show()
 
-# Function for inference with user input
 def predict_sentiment(user_input, model, tokenizer, maxlen):
     user_input_seq = tokenizer.texts_to_sequences([user_input])
     user_input_padded = pad_sequences(user_input_seq, maxlen=maxlen)
@@ -84,14 +76,12 @@ def predict_sentiment(user_input, model, tokenizer, maxlen):
 
 def calculate_sentiment_score(predicted_output):
     # Assuming the predicted_output contains probabilities for positive and negative sentiments
-    avg_positive_prob = np.mean(predicted_output[:, :, :int(predicted_output.shape[2] / 2)])  # Average probabilities of positive sentiment
-    avg_negative_prob = np.mean(predicted_output[:, :, int(predicted_output.shape[2] / 2):])  # Average probabilities of negative sentiment
+    avg_positive_prob = np.mean(predicted_output[:, :, :int(predicted_output.shape[2] / 2)])  
+    avg_negative_prob = np.mean(predicted_output[:, :, int(predicted_output.shape[2] / 2):]) 
 
-    sentiment_score = avg_positive_prob - avg_negative_prob  # Calculate sentiment score
+    sentiment_score = avg_positive_prob - avg_negative_prob 
     return sentiment_score
 
-
-# Getting user input for sentiment analysis
 user_input_text = input("Enter your text for sentiment analysis: ")
 predicted_output = predict_sentiment(user_input_text, autoencoder, tokenizer, maxlen)
 

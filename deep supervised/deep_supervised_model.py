@@ -77,7 +77,6 @@ def predict_sentiment(text, model, tokenizer, maxlen):
     predicted_sentiment = model.predict(padded_sequence)[0][0]
     return predicted_sentiment
 
-# Getting user input for sentiment analysis
 user_input_text = input("Enter your text for sentiment analysis: ")
 
 predicted_sentiment = predict_sentiment(user_input_text, model, tokenizer, maxlen)
